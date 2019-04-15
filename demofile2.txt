@@ -1,0 +1,16 @@
+3a
+session=xxxxxxxx&timestamp=1555313511377&visitPoint=ga3a
+session=xxxxxxxx&timestamp=1555313514131&visitPoint=ga3b
+session=xxxxxxxx&timestamp=1555313517218&visitPoint=gam3a
+session=xxxxxxxx&timestamp=1555313526376&visitPoint=ga3a
+session=xxxxxxxx&timestamp=1555313550219&visitPoint=ga3a
+session=xxxxxxxx&timestamp=1555313553151&visitPoint=ga3a
+session=xxxxxxxx&timestamp=1555313625764&visitPoint=ga3a
+session=xxxxxxxx&timestamp=1555313631693&visitPoint=ga40
+session=xxxxxxxx&timestamp=1555313731497&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313737447&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313812387&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313857499&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313860399&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313863399&visitPoint=sarasasa40
+session=xxxxxxxx&timestamp=1555313896520&visitPoint=sarasasa
