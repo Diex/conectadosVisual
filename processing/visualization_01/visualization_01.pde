@@ -35,7 +35,6 @@ void setup() {
 
 void generateSessions(){
   
-  
   if ( db.connect() ) {
     // list table names
     db.query( "SELECT * FROM visits ORDER BY ts ASC" );
@@ -117,7 +116,7 @@ void draw() {
   iterations++;
   println(iterations);
   if(iterations >= 60*60){
-    
+    background(0);
     iterations = 0;
     generateSessions();
   }
