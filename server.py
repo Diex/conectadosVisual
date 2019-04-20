@@ -20,6 +20,7 @@ import SocketServer
 import urlparse
 import sqlite3
 from sqlite3 import Error
+import urllib
 
 
 
@@ -43,47 +44,81 @@ class S(BaseHTTPRequestHandler):
         # Doesn't do anything with posted data
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
+
         # print urlparse.parse_qs(self.rfile.read(int(self.headers['Content-Length'])))
         fields = dict(urlparse.parse_qs(post_data))
         for key,value in fields.items():             
             print key + " = " + value[0]
 
+        if(fields.get("message")[0] == "visitor"):            
+            
 
+            s = fields.get("session")[0]
+            n = fields.get("name")[0]
+            l = fields.get("location")[0]
+            e = fields.get("email")[0]
+            
+            visitor = (s,n,l,e)
+                 
+            try:
+                conn = sqlite3.connect("./conectadxs_sqlite.db")     
+                conn.text_factory = str #esto hace que los caracteres se vean ok en la db aunque se imprimen feo
+                cur = conn.cursor() # creating th cursor object
+                cur.execute("CREATE TABLE IF NOT EXISTS visitors (session TEXT, name TEXT, location TEXT, email TEXT)")                
+                visitor_id = create_visitor(conn, visitor)                
+                conn.commit()
+                conn.close();
+                print(visitor_id)
+            except Error as e:
+                print("Error ... ")
+                print(e)                
         
-        conn = create_connection("./conectadxs_sqlite.db")
-        
-        with conn:
-        #     # create a new project
-            visit = (fields.get("timestamp")[0], fields.get("session")[0], fields.get("gameId")[0])
-            visit_id = create_visit(conn, visit)
-            print(visit_id)
-        # print post_data # <-- Print post data
+        else:
+
+            try:
+                conn = sqlite3.connect("./conectadxs_sqlite.db")            
+                cur = conn.cursor() # creating th cursor object
+                cur.execute("CREATE TABLE IF NOT EXISTS visits (ts TEXT, session TEXT, gameId TEXT)")
+                conn.commit()
+                visit = ( fields.get("timestamp")[0].decode("utf-8"), fields.get("session")[0], fields.get("gameId")[0])
+                visit_id = create_visit(conn, visit)
+                print(visit_id)
+            except Error as e:
+                print(e)
+            finally:
+                conn.close()
+
         self.wfile.write(post_data)
         
 
-def create_connection(db_file):
-    """ create a database connection to a SQLite database """
-    try:
+# def create_connection(db_file):
+#     """ create a database connection to a SQLite database """
+        
+        
+#         # print(sqlite3.version)
+#         # print(conn)
+#         return conn
+#     except Error as e:
+#         print(e)
+#     # finally:
+#     #     conn.close()
 
-        conn = sqlite3.connect(db_file)
-        cur = conn.cursor() # creating th cursor object
-        cur.execute("CREATE TABLE IF NOT EXISTS visits (ts TEXT, session TEXT, gameId TEXT)")
-        conn.commit()
-        print(sqlite3.version)
-        print(conn)
-        return conn
-    except Error as e:
-        print(e)
-    # finally:
-    #     conn.close()
-
-def create_visit(conn, project):
-    print(project)
+def create_visit(conn, visit):
+    
     sql = ''' INSERT INTO visits(ts,session,gameId)
               VALUES(?,?,?) '''
     cur = conn.cursor()
-    cur.execute(sql, project)
+    cur.execute(sql, visit)
     return cur.lastrowid
+
+def create_visitor(conn, visitor):
+    
+    sql = ''' INSERT INTO visitors(session,name,location,email)
+              VALUES(?,?,?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, visitor)
+    return cur.lastrowid
+
 
 def run(server_class=HTTPServer, handler_class=S, port=8000):
     server_address = ('', port)
