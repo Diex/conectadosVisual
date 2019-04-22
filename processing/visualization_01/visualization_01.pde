@@ -116,6 +116,7 @@ int YOFF = 50;
 boolean draw = true;
 int iterations = 0;
 void draw() {
+  background(0);
   iterations++;
 //  println(iterations);
   if(iterations >= 60*60){
@@ -137,12 +138,11 @@ void draw() {
 void renderSession(Session s) {
   for (Visit v : s.visits) {
     // HACK !!!
-    if (v.gameId.equals("game_7")) continue; 
-        
+    if (v.gameId.equals("game_7")) continue;         
     float siz = v.getDuration();
-    fill(v.fillColor, 18);
+    fill(v.fillColor, 250);
     noStroke();
-    stroke(0, 5);
+    stroke(0, 125);
     v.alfa += v.alfaInc;
     //pushMatrix();
     //translate(0,0,v.center.z*2);
