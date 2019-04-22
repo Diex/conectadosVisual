@@ -1,6 +1,10 @@
 import de.bezier.data.sql.*;
 import de.bezier.data.sql.mapper.*;
 
+import oscP5.*;
+import netP5.*;
+  
+OscP5 oscP5;
 public PShape planta;
 SQLite db;
 ArrayList<Session> sessions;
@@ -32,6 +36,9 @@ void setup() {
   //background(#23B4F5);
   background(0);
   //background(255);
+   /* start oscP5, listening for incoming messages at port 12000 */
+  oscP5 = new OscP5(this,9999);
+  
 }
 
 
@@ -116,12 +123,13 @@ int YOFF = 50;
 boolean draw = true;
 int iterations = 0;
 void draw() {
+ // background(0);
   iterations++;
 //  println(iterations);
   if(iterations >= 60*60){
     
     iterations = 0;
-    generateSessions();
+    //generateSessions();
   }
     
   fill(0,1);
@@ -137,12 +145,11 @@ void draw() {
 void renderSession(Session s) {
   for (Visit v : s.visits) {
     // HACK !!!
-    if (v.gameId.equals("game_7")) continue; 
-        
+    if (v.gameId.equals("game_7")) continue;         
     float siz = v.getDuration();
-    fill(v.fillColor, 18);
+    fill(v.fillColor, 150);
     noStroke();
-    stroke(0, 5);
+    stroke(0, 6);
     v.alfa += v.alfaInc;
     //pushMatrix();
     //translate(0,0,v.center.z*2);
@@ -152,4 +159,12 @@ void renderSession(Session s) {
     50 * siz, 50 * siz);
     //popMatrix();
   }
+}
+
+void oscEvent(OscMessage theOscMessage) {
+   if(theOscMessage.checkAddrPattern("/visitEnd")==true){
+      println(" typetag: "+theOscMessage.get(0).stringValue());
+       generateSessions();
+  }
+  
 }
