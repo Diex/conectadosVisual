@@ -51,20 +51,20 @@ class S(BaseHTTPRequestHandler):
             print key + " = " + value[0]
 
         if(fields.get("message")[0] == "visitor"):            
-            
-
+       
             s = fields.get("session")[0]
             n = fields.get("name")[0]
+            a = fields.get("age")[0]
             l = fields.get("location")[0]
             e = fields.get("email")[0]
             
-            visitor = (s,n,l,e)
+            visitor = (s,n,a,l,e)
                  
             try:
                 conn = sqlite3.connect("./conectadxs_sqlite.db")     
                 conn.text_factory = str #esto hace que los caracteres se vean ok en la db aunque se imprimen feo
-                cur = conn.cursor() # creating th cursor object
-                cur.execute("CREATE TABLE IF NOT EXISTS visitors (session TEXT, name TEXT, location TEXT, email TEXT)")                
+                # cur = conn.cursor() # creating th cursor object
+                # cur.execute("CREATE TABLE IF NOT EXISTS visitors (session TEXT, name TEXT, age TEXT, location TEXT, email TEXT)")                
                 visitor_id = create_visitor(conn, visitor)                
                 conn.commit()
                 conn.close();
@@ -75,18 +75,25 @@ class S(BaseHTTPRequestHandler):
         
         else:
 
+            t = fields.get("timestamp")[0]
+            s = fields.get("session")[0]
+            i = fields.get("gameId")[0]
+
+            visit = (t,s,i)
+
             try:
                 conn = sqlite3.connect("./conectadxs_sqlite.db")            
-                cur = conn.cursor() # creating th cursor object
-                cur.execute("CREATE TABLE IF NOT EXISTS visits (ts TEXT, session TEXT, gameId TEXT)")
-                conn.commit()
-                visit = ( fields.get("timestamp")[0].decode("utf-8"), fields.get("session")[0], fields.get("gameId")[0])
+                conn.text_factory = str #esto hace que los caracteres se vean ok en la db aunque se imprimen feo
+                # cur = conn.cursor() # creating th cursor object
+                # cur.execute("CREATE TABLE IF NOT EXISTS visits (ts TEXT, session TEXT, gameId TEXT)")                                
                 visit_id = create_visit(conn, visit)
+                conn.commit()
+                conn.close()
                 print(visit_id)
             except Error as e:
+                print("Error...")
                 print(e)
-            finally:
-                conn.close()
+                
 
         self.wfile.write(post_data)
         
@@ -113,8 +120,8 @@ def create_visit(conn, visit):
 
 def create_visitor(conn, visitor):
     
-    sql = ''' INSERT INTO visitors(session,name,location,email)
-              VALUES(?,?,?,?) '''
+    sql = ''' INSERT INTO visitors(session,name,age,location,email)
+              VALUES(?,?,?,?,?) '''
     cur = conn.cursor()
     cur.execute(sql, visitor)
     return cur.lastrowid
