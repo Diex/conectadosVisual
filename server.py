@@ -21,12 +21,18 @@ import urlparse
 import sqlite3
 from sqlite3 import Error
 import urllib
+import argparse
+import random
+import time
 
+from pythonosc import osc_message_builder
+from pythonosc import udp_client
+import OSC
 
 
 class S(BaseHTTPRequestHandler):
     
-
+    
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -73,7 +79,7 @@ class S(BaseHTTPRequestHandler):
                 print("Error ... ")
                 print(e)                
         
-        else:
+        elif(fields.get("message")[0] == "visit"):
 
             t = fields.get("timestamp")[0]
             s = fields.get("session")[0]
@@ -93,9 +99,47 @@ class S(BaseHTTPRequestHandler):
             except Error as e:
                 print("Error...")
                 print(e)
+
+        elif(fields.get("message")[0] == "visitEnd"):        
+            
+            print("visit end")
+            s = fields.get("session")[0]
+            t = fields.get("timestamp")[0]
+
+            try:
+                conn = sqlite3.connect("./conectadxs_sqlite.db")            
+                conn.text_factory = str #esto hace que los caracteres se vean ok en la db aunque se imprimen feo
+                cur = conn.cursor() # creating th cursor object
                 
+                sql = ''' INSERT INTO visitsEnds(ts, session)
+                    VALUES(?,?) '''
+                # cur = conn.cursor()
+                cur.execute(sql,(t,s))
+                print(cur.lastrowid)
+                # visit_id = create_visit(conn, visit)
+                conn.commit()
+                conn.close()
+                
+            except Error as e:
+                print("Error...")
+                print(e)
+
+
+            c = OSC.OSCClient()
+            c.connect(('127.0.0.1', 9999))   # connect to SuperCollider
+            oscmsg = OSC.OSCMessage()
+            oscmsg.setAddress("/visitEnd")
+            oscmsg.append(s)
+            c.send(oscmsg)
+                # client.send_message("/visitEnd", "12345678")
+            
+
+        else:
+            print("nada nada nada...")
 
         self.wfile.write(post_data)
+        
+    
         
 
 # def create_connection(db_file):
