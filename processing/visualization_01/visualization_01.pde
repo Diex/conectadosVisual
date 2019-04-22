@@ -1,5 +1,9 @@
 import de.bezier.data.sql.*;
 import de.bezier.data.sql.mapper.*;
+import oscP5.*;
+import netP5.*;
+
+OscP5 oscP5;
 
 PShape planta ;
 SQLite db;
@@ -8,6 +12,10 @@ float scale = 0.22;
 void setup() {
   size(960, 540, P3D);
   planta =  loadShape("planta sensores 2.svg");
+  
+  /* start oscP5, listening for incoming messages at port 12000 */
+  oscP5 = new OscP5(this,9999);
+  
   planta.scale(scale);
   println(planta.getChildCount());
   println(planta.getChild(1).getChildCount());
@@ -114,7 +122,7 @@ boolean draw = true;
 int iterations = 0;
 void draw() {
   iterations++;
-  println(iterations);
+  //println(iterations);
   if(iterations >= 60*60){
     background(0);
     iterations = 0;
@@ -149,4 +157,10 @@ void renderSession(Session s) {
     50 * siz, 50 * siz);
     //popMatrix();
   }
+}
+
+void oscEvent(OscMessage theOscMessage) {
+  if(theOscMessage.checkAddrPattern("/visitEnd")==true) {
+    println(theOscMessage.get(0).stringValue());
+  }  
 }
