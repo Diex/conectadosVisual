@@ -32,32 +32,6 @@ String getVisitorName(String id) {
   return userName;
 }
 
-/*
-void generateSessions() {
- if ( db.connect() ) {
- // list table names
- db.query( "SELECT * FROM visits ORDER BY ts ASC" );
- while (db.next()) {
- String session = db.getString("session"); 
- if (sessionExists(session)) {
- } else {
- if (sessions.size() > 20) sessions.remove(0);
- sessions.add(new Session(session));
- }
- }
- 
- 
- 
- 
- for (Session session : sessions) {
- String s = getVisitorName(session.sessionId);
- println(session.sessionId, s);
- session.visitorName = s; 
- }
- }
- }
- */
-
 void getVisitsForSession(Session session) {
   if (db.connect()) {
     db.query( "SELECT * FROM visits WHERE session LIKE \""+session.sessionId +"\"" );
@@ -72,7 +46,7 @@ void getVisitsForSession(Session session) {
   session.createSessionVisualizations();
 }
 
-void addNewSessions(ArrayList sessions) {
+void getNewSessions(ArrayList sessions) {
 
   if ( db.connect() ) {
     //db.query( "SELECT * FROM visits ORDER BY ts ASC" );    
@@ -91,6 +65,7 @@ void addNewSessions(ArrayList sessions) {
   }else{
     println("db not connected");
   }
+  db.close();
 }
 
 Session getSession(String sessionId) {  

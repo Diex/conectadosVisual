@@ -62,17 +62,31 @@ public class Session {
     }
   }
 
-  void renderSession() {
+  void renderSession(boolean show) {
+    pushStyle();
     for (Visit v : this.visits) {    
       float siz = v.getDuration() * scale;
       fill(v.fillColor, fillAlpha);
       stroke(0, 150);    
       v.alfa += v.alfaInc;
+      v.currentPosition.x = v.center.x + sin(v.alfa) * (v.radius + 0.1 * v.radius * noise(v.alfa));
+      v.currentPosition.y = v.center.y + cos(v.alfa) * (v.radius + 0.1 * v.radius * noise(v.alfa));
       ellipse(
-        v.center.x + sin(v.alfa) * (v.radius + 0.1 * v.radius * noise(v.alfa)), 
-        v.center.y + cos(v.alfa) * (v.radius + 0.1 * v.radius * noise(v.alfa)), 
+        v.currentPosition.x, 
+        v.currentPosition.y, 
         50 * siz, 50 * siz);
     }
+    if(show){
+      beginShape();
+      noFill();
+      strokeWeight(10);
+      stroke(255, 200);
+      for (Visit v : this.visits) {
+        curveVertex(v.currentPosition.x, v.currentPosition.y);        
+      }
+      endShape();
+    }
+    popStyle();
   }
 }
 

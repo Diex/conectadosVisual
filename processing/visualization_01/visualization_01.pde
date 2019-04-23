@@ -17,68 +17,64 @@ public PShape planta;
 
 SQLite db;
 ArrayList<Session> sessions;
-float scale = 0.5; //0.5; // 0.22 * 1920.0/960.0;
+float scale = 1; //0.5;
 Session s;
 PImage layer_1;
 Ani showVisitTimeout;
 float showVisitTimeoutDummy;
-void setup() {
+boolean lastSession = false;
 
-  // Ani.init() must be called always first!
-  Ani.init(this);
- 
-   
-  //size(1920, 1080, P3D);
-  size(960, 540, P3D);
+void setup() {
+  
+  size(1920, 1080, P3D);
+  //size(960, 540, P3D);
   noCursor();
+  Ani.init(this);
 
   planta = loadShape(dataPath("plantasensores.svg")); 
   planta.scale(scale);
 
   layer_1 = loadImage("layer_1.png");
-  showAllChildren(planta);
+  
+  //showAllChildren(planta);
 
   sessions = new ArrayList<Session>();
 
   db = new SQLite( this, "conectadxs_sqlite.db" );  // open database file
-  generateSessions();
   oscP5 = new OscP5(this, 9999);
-  
+
   createFonts();
+  generateSessions();
 }
 
-boolean lastSession = false;
+
 
 void draw() {
+
   background(#00ABE8);
   shape(planta, 0, 0);
 
   if (lastSession) {
-    s.renderSession();
-    renderTexts("Estas viendo la visita de: " + s.visitorName);
+    s.renderSession(true);
+    renderTexts("Estas viendo la visita \nde: " + s.visitorName);
   } else {
-
     for (Session session : sessions) {
-      session.renderSession();
+      session.renderSession(false);
     }
-    
     renderTexts(
-    "Hoy pasaron " + sessions.size() + " visitantes", 
-    "");
+      "Hoy ya pasaron " + sessions.size() + " visitantes");
   }
-  
-  
 
-  
   image(layer_1, 0, 0, width, height);
 }
 
 
-void generateSessions(){
-  addNewSessions(sessions);
+void generateSessions() {
+  getNewSessions(sessions);
   for (Session session : sessions) {
     getVisitsForSession(session);
     session.createSessionVisualizations();
+    session.visitorName = getVisitorName(session.sessionId);
   }
 }
 
@@ -109,8 +105,8 @@ String convertData(String cualca) {
 }
 
 public void keyPressed () {
-  if(key != ' ') return;
-   String[] ids = {
+  if (key != ' ') return;
+  String[] ids = {
     "﻿44471264-fb0c-4756-87ee-f1580cf63f0d", 
     "﻿f2a5f37f-3269-4aac-a14e-ac127087e08d", 
     "﻿e0987ab5-4f67-403e-8007-a97ba427199c", 
@@ -122,9 +118,8 @@ public void keyPressed () {
   newVisitor(convertData(ids[(int) random(ids.length)]));
 }
 
-public void OnShowVisitEnd(){
-    lastSession = false;
-
+public void OnShowVisitEnd() {
+  lastSession = false;
 }
 
 boolean sessionExists(String s) {
@@ -144,16 +139,15 @@ void oscEvent(OscMessage theOscMessage) {
 }
 
 
-void newVisitor(String id){
- 
-  if(s != null) sessions.add(s); // el primero esta vacio..
-  //Session news = getSession();
-    Session news = getSession(id);
-  //createSessionVisualizations(news);  
+void newVisitor(String id) {
+  if(lastSession) return;
+  
+  Session news = getSession(id);  
   news.createSessionVisualizations();
   news.visitorName = getVisitorName(news.sessionId);
+  sessions.add(news); // el primero esta vacio..
+  if(sessions.size() > 75) sessions.remove(0);
   s = news;
   lastSession = true;    
-  showVisitTimeout = new Ani(this, 5.0, "showVisitTimeoutDummy", 0.0, Ani.LINEAR, "onEnd:OnShowVisitEnd"); 
-
+  showVisitTimeout = new Ani(this, 60, "showVisitTimeoutDummy", 0.0, Ani.LINEAR, "onEnd:OnShowVisitEnd");
 }

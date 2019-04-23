@@ -6,6 +6,7 @@ public class Visit{
   public color fillColor;
   
   public PVector center;
+  public PVector currentPosition;
   public float alfa;
   public float alfaInc;
   public float radius;
@@ -13,6 +14,7 @@ public class Visit{
   public Visit(long start, String gameId){
     this.start = start;    
     this.gameId = gameId;
+    this.currentPosition = new PVector();
   }
   
   public float getDuration(){
