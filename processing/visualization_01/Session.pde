@@ -18,13 +18,10 @@ public class Session {
   }
 
   public void sortVisits() {
-
     Collections.sort(visits, new SortByTime()); 
-    for(int i = 0; i < visits.size() - 1; i++){
+    for (int i = 0; i < visits.size() - 1; i++) {
       visits.get(i).setEnd(visits.get(i+1).getStart());
     }
-    
-    //visits.get(visits.size()-1).setEnd(visits.get(visits.size()-1).getStart() + 10000);
   }
 }
 
