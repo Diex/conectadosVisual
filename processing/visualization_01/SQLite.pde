@@ -16,6 +16,21 @@ String getLastVisitor() {
   return lastSessionId;
 }
 
+String getVisitorName(String id){
+  String userName = "";
+  
+  if ( db.connect() ) {
+    db.query("SELECT * FROM visitors WHERE session LIKE \""+ id +"\"");
+    if(db.next()){
+      userName = db.getString("name");
+    }else{
+      userName = "Anónimo";
+    }    
+  }
+  //println(id, userName);
+  db.close();
+  return userName;
+}
 
 void generateSessions() {
   if ( db.connect() ) {
@@ -41,6 +56,12 @@ void generateSessions() {
       }
       session.sortVisits();
       createSessionVisualizations(session);
+    }
+    
+    for (Session session : sessions) {
+      String s = getVisitorName(session.sessionId);
+      println(session.sessionId, s);
+      session.visitorName = s; 
     }
   }
 }

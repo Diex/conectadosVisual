@@ -4,7 +4,8 @@ public class Session {
 
   private final String sessionId;
   ArrayList<Visit> visits;
-
+  String visitorName;
+  
   public Session(String sessionId) {
     this.sessionId = sessionId;
     visits = new ArrayList<Visit>();

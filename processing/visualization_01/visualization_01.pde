@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+
+import de.looksgood.ani.*;
 OscP5 oscP5;
 
 
@@ -18,9 +20,14 @@ ArrayList<Session> sessions;
 float scale = 0.5; //0.5; // 0.22 * 1920.0/960.0;
 Session s;
 PImage layer_1;
-
+Ani showVisitTimeout;
+float showVisitTimeoutDummy;
 void setup() {
 
+  // Ani.init() must be called always first!
+  Ani.init(this);
+ 
+   
   //size(1920, 1080, P3D);
   size(960, 540, P3D);
   noCursor();
@@ -34,22 +41,10 @@ void setup() {
   sessions = new ArrayList<Session>();
 
   db = new SQLite( this, "conectadxs_sqlite.db" );  // open database file
-
   generateSessions();
-
-
   oscP5 = new OscP5(this, 9999);
-
-  //String lastVisitor = getLastVisitor();
-  //println(lastVisitor);
-
-  //s = getSession(convertData("﻿210ad481-162f-4868-a91c-71ab43439fce"));
-  //createSessionVisualizations(s);
-  //println(s.visits);
-  //for (Visit v : s.visits) println(v.getDuration());
-  //background(0);
-  //println(s);
-  //println( System.getProperty("file.encoding") );
+  
+  createFonts();
 }
 
 boolean lastSession = false;
@@ -58,18 +53,25 @@ void draw() {
   background(#00ABE8);
   shape(planta, 0, 0);
 
-  if(lastSession){
+  if (lastSession) {
     renderSession(s, true);
-  }else{
-    
-  for (Session session : sessions) {
-    renderSession(session, false);
-  } 
+    renderTexts("Estas viendo la visita de: " + s.visitorName);
+  } else {
+
+    for (Session session : sessions) {
+      renderSession(session, false);
+    }
+    renderTexts(
+    "Hoy pasaron " + sessions.size() + " visitantes", 
+    "");
   }
+  
+  
 
-
+  
   image(layer_1, 0, 0, width, height);
 }
+
 
 String convertData(String cualca) {
   String chinga = "";
@@ -77,50 +79,34 @@ String convertData(String cualca) {
     byte[] originalBytes = cualca.getBytes(StandardCharsets.UTF_8);
     int count = 0;
     int value = -1;
-    while(value < 0){
+    while (value < 0) {
       value = originalBytes[count];
       count++;
     }
-    
-    for (byte b : originalBytes) {
-      print(String.format("%02x", b) + " ");
-    }
-    println();
-    for (byte b : originalBytes) {
-      print(b + " " );
-    }
-    println();
-    chinga = new String(Arrays.copyOfRange(originalBytes, count-1, originalBytes.length));  
+    //for (byte b : originalBytes) {
+    //  print(String.format("%02x", b) + " ");
+    //}
+    //println();
+    //for (byte b : originalBytes) {
+    //  print(b + " " );
+    //}
+    //println();
+    chinga = new String(Arrays.copyOfRange(originalBytes, count-1, originalBytes.length));
   }
   catch (Exception e) {
     e.printStackTrace();
   }
-  //println(chinga);
   return chinga;
 }
 
 public void keyPressed () {
-  String[] ids = {
-    "﻿44471264-fb0c-4756-87ee-f1580cf63f0d",
-    "﻿f2a5f37f-3269-4aac-a14e-ac127087e08d",
-    "﻿e0987ab5-4f67-403e-8007-a97ba427199c",
-    "﻿1842476a-9eb1-405f-9ece-2491ca51db97",
-    "﻿210ad481-162f-4868-a91c-71ab43439fce",
-    "﻿e9976b70-1796-4832-a3bd-06e61e8e1258",
-    "﻿23580d8f-d3f5-486c-91c9-312be9b22e74"};
-    
   
-  s = getSession(convertData(ids[(int) random(ids.length)]));
-  createSessionVisualizations(s);   
-  println(s.sessionId);
-  println(s.visits);
-  for (Visit v : s.visits) println(v.getDuration());
-  println(s);
-  lastSession = true;  
-  //generateSessions();
 }
 
+public void OnShowVisitEnd(){
+    lastSession = false;
 
+}
 
 boolean sessionExists(String s) {
   for (Session session : sessions) {
@@ -130,12 +116,32 @@ boolean sessionExists(String s) {
 }
 
 
-
-
-
 void oscEvent(OscMessage theOscMessage) {
   if (theOscMessage.checkAddrPattern("/visitEnd")==true) {
     println(" typetag: "+theOscMessage.get(0).stringValue());
-    generateSessions();
+    newVisitor(theOscMessage.get(0).stringValue());
+    //generateSessions();
   }
+}
+
+
+void newVisitor(String id){
+  String[] ids = {
+    "﻿44471264-fb0c-4756-87ee-f1580cf63f0d", 
+    "﻿f2a5f37f-3269-4aac-a14e-ac127087e08d", 
+    "﻿e0987ab5-4f67-403e-8007-a97ba427199c", 
+    "﻿1842476a-9eb1-405f-9ece-2491ca51db97", 
+    "﻿210ad481-162f-4868-a91c-71ab43439fce", 
+    "﻿e9976b70-1796-4832-a3bd-06e61e8e1258", 
+    "﻿23580d8f-d3f5-486c-91c9-312be9b22e74"};
+
+  if(s != null) sessions.add(s); // el primero esta vacio..
+  //Session news = getSession(convertData(ids[(int) random(ids.length)]));
+    Session news = getSession(id);
+  createSessionVisualizations(news);  
+  news.visitorName = getVisitorName(news.sessionId);
+  s = news;
+  lastSession = true;    
+  showVisitTimeout = new Ani(this, 5.0, "showVisitTimeoutDummy", 0.0, Ani.LINEAR, "onEnd:OnShowVisitEnd"); 
+
 }
