@@ -25,8 +25,6 @@ void setup() {
   }
   
   planta.getChild("game_7").setVisible(false);
-
-
   sessions = new ArrayList<Session>();
 
   db = new SQLite( this, "conectadxs_sqlite.db" );  // open database file
@@ -126,8 +124,7 @@ void draw() {
  // background(0);
   iterations++;
 //  println(iterations);
-  if(iterations >= 60*60){
-    
+  if(iterations >= 60*60){    
     iterations = 0;
     //generateSessions();
   }
