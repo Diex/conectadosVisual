@@ -16,56 +16,82 @@ String getLastVisitor() {
   return lastSessionId;
 }
 
-String getVisitorName(String id){
+String getVisitorName(String id) {
   String userName = "";
-  
+
   if ( db.connect() ) {
     db.query("SELECT * FROM visitors WHERE session LIKE \""+ id +"\"");
-    if(db.next()){
+    if (db.next()) {
       userName = db.getString("name");
-    }else{
+    } else {
       userName = "Anónimo";
-    }    
+    }
   }
   //println(id, userName);
   db.close();
   return userName;
 }
 
+/*
 void generateSessions() {
-  if ( db.connect() ) {
-    // list table names
-    db.query( "SELECT * FROM visits ORDER BY ts ASC" );
+ if ( db.connect() ) {
+ // list table names
+ db.query( "SELECT * FROM visits ORDER BY ts ASC" );
+ while (db.next()) {
+ String session = db.getString("session"); 
+ if (sessionExists(session)) {
+ } else {
+ if (sessions.size() > 20) sessions.remove(0);
+ sessions.add(new Session(session));
+ }
+ }
+ 
+ 
+ 
+ 
+ for (Session session : sessions) {
+ String s = getVisitorName(session.sessionId);
+ println(session.sessionId, s);
+ session.visitorName = s; 
+ }
+ }
+ }
+ */
+
+void getVisitsForSession(Session session) {
+  if (db.connect()) {
+    db.query( "SELECT * FROM visits WHERE session LIKE \""+session.sessionId +"\"" );
     while (db.next()) {
-      String session = db.getString("session"); 
+      String ts = db.getString("ts");
+      String gameId = db.getString("gameId");
+      session.visits.add(new Visit(Long.parseLong(ts), gameId));
+    }
+  }
+  db.close();
+  session.sortVisits();
+  session.createSessionVisualizations();
+}
+
+void addNewSessions(ArrayList sessions) {
+
+  if ( db.connect() ) {
+    //db.query( "SELECT * FROM visits ORDER BY ts ASC" );    
+    db.query( "SELECT * FROM visitors ORDER BY visitDate DESC LIMIT 10" );
+    while (db.next()) {
+      String session = db.getString("session");
+      println("addNewSessions: " + session);
+      // TODO hacer que el campo session en la tabla sea UNIQUE
       if (sessionExists(session)) {
+        continue;
       } else {
-        if (sessions.size() > 20) sessions.remove(0);
+        //if (sessions.size() > 20) sessions.remove(0);
         sessions.add(new Session(session));
       }
     }
-
-
-    for (Session session : sessions) {
-      println(session.sessionId); 
-      db.query( "SELECT * FROM visits WHERE session LIKE \""+session.sessionId +"\"" );
-      while (db.next()) {
-        String ts = db.getString("ts");
-        String gameId = db.getString("gameId");
-        session.visits.add(new Visit(Long.parseLong(ts), gameId));
-      }
-      session.sortVisits();
-      createSessionVisualizations(session);
-    }
-    
-    for (Session session : sessions) {
-      String s = getVisitorName(session.sessionId);
-      println(session.sessionId, s);
-      session.visitorName = s; 
-    }
+  }else{
+    println("db not connected");
   }
 }
-
 
 Session getSession(String sessionId) {  
   Session s = new Session(sessionId);
@@ -80,7 +106,7 @@ Session getSession(String sessionId) {
       s.visits.add(new Visit(Long.parseLong(ts), gameId));
     }
     s.sortVisits();
-  }else{
+  } else {
     println("cant connect");
   }
 

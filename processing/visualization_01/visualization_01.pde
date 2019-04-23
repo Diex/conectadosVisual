@@ -54,13 +54,14 @@ void draw() {
   shape(planta, 0, 0);
 
   if (lastSession) {
-    renderSession(s, true);
+    s.renderSession();
     renderTexts("Estas viendo la visita de: " + s.visitorName);
   } else {
 
     for (Session session : sessions) {
-      renderSession(session, false);
+      session.renderSession();
     }
+    
     renderTexts(
     "Hoy pasaron " + sessions.size() + " visitantes", 
     "");
@@ -72,6 +73,14 @@ void draw() {
   image(layer_1, 0, 0, width, height);
 }
 
+
+void generateSessions(){
+  addNewSessions(sessions);
+  for (Session session : sessions) {
+    getVisitsForSession(session);
+    session.createSessionVisualizations();
+  }
+}
 
 String convertData(String cualca) {
   String chinga = "";
@@ -100,7 +109,17 @@ String convertData(String cualca) {
 }
 
 public void keyPressed () {
-  
+  if(key != ' ') return;
+   String[] ids = {
+    "﻿44471264-fb0c-4756-87ee-f1580cf63f0d", 
+    "﻿f2a5f37f-3269-4aac-a14e-ac127087e08d", 
+    "﻿e0987ab5-4f67-403e-8007-a97ba427199c", 
+    "﻿1842476a-9eb1-405f-9ece-2491ca51db97", 
+    "﻿210ad481-162f-4868-a91c-71ab43439fce", 
+    "﻿e9976b70-1796-4832-a3bd-06e61e8e1258", 
+    "﻿23580d8f-d3f5-486c-91c9-312be9b22e74"};
+
+  newVisitor(convertData(ids[(int) random(ids.length)]));
 }
 
 public void OnShowVisitEnd(){
@@ -126,19 +145,12 @@ void oscEvent(OscMessage theOscMessage) {
 
 
 void newVisitor(String id){
-  String[] ids = {
-    "﻿44471264-fb0c-4756-87ee-f1580cf63f0d", 
-    "﻿f2a5f37f-3269-4aac-a14e-ac127087e08d", 
-    "﻿e0987ab5-4f67-403e-8007-a97ba427199c", 
-    "﻿1842476a-9eb1-405f-9ece-2491ca51db97", 
-    "﻿210ad481-162f-4868-a91c-71ab43439fce", 
-    "﻿e9976b70-1796-4832-a3bd-06e61e8e1258", 
-    "﻿23580d8f-d3f5-486c-91c9-312be9b22e74"};
-
+ 
   if(s != null) sessions.add(s); // el primero esta vacio..
-  //Session news = getSession(convertData(ids[(int) random(ids.length)]));
+  //Session news = getSession();
     Session news = getSession(id);
-  createSessionVisualizations(news);  
+  //createSessionVisualizations(news);  
+  news.createSessionVisualizations();
   news.visitorName = getVisitorName(news.sessionId);
   s = news;
   lastSession = true;    
