@@ -26,9 +26,6 @@ boolean lastSession = false;
 
 void setup() {
   
-<<<<<<< HEAD
-  planta.getChild("game_7").setVisible(false);
-=======
   size(1920, 1080, P3D);
   //size(960, 540, P3D);
   noCursor();
@@ -41,7 +38,6 @@ void setup() {
   
   //showAllChildren(planta);
 
->>>>>>> 9f318135fdae22c80c234633fc0aace5189a0a6f
   sessions = new ArrayList<Session>();
 
   db = new SQLite( this, "conectadxs_sqlite.db" );  // open database file
@@ -77,7 +73,7 @@ void generateSessions() {
   getNewSessions(sessions);
   for (Session session : sessions) {
     getVisitsForSession(session);
-    session.createSessionVisualizations();
+    //session.createSessionVisualizations();
     session.visitorName = getVisitorName(session.sessionId);
   }
 }
@@ -133,22 +129,11 @@ boolean sessionExists(String s) {
   return false;
 }
 
-<<<<<<< HEAD
-boolean draw = true;
-int iterations = 0;
-void draw() {
- // background(0);
-  iterations++;
-//  println(iterations);
-  if(iterations >= 60*60){    
-    iterations = 0;
-=======
 
 void oscEvent(OscMessage theOscMessage) {
   if (theOscMessage.checkAddrPattern("/visitEnd")==true) {
     println(" typetag: "+theOscMessage.get(0).stringValue());
     newVisitor(theOscMessage.get(0).stringValue());
->>>>>>> 9f318135fdae22c80c234633fc0aace5189a0a6f
     //generateSessions();
   }
 }
@@ -158,7 +143,8 @@ void newVisitor(String id) {
   if(lastSession) return;
   
   Session news = getSession(id);  
-  news.createSessionVisualizations();
+  getVisitsForSession(news);
+  //news.createSessionVisualizations();
   news.visitorName = getVisitorName(news.sessionId);
   sessions.add(news); // el primero esta vacio..
   if(sessions.size() > 75) sessions.remove(0);
